@@ -1,1 +1,105 @@
-CRUD queries
+show collections;
+
+db.students.insert( { "student_id" : 1, "name" : "neeraj", "age":18, "mobile": 00000000, "status": "active", "email": "neeraj@test.t", "class_results": [ { "class_id": 7 , "year": 2020, "marks": 500, "result": "pass" } ] } )
+
+db.students.insert( { "_id" : 2, "name" : "girish", "age":19, "mobile": 900000000, "status": "active", "email": "girish@test.t", "class_results": [ { "class_id": 7 , "year": 2020, "marks": 425, "result": "pass" } ] } )
+
+db.students.insert( { "student_id" : 3, "name" : "john", "age":17, "mobile": 0067800000, "status": "active", "email": "john@john.tc", "class_results": [ { "class_id": 7 , "year": 2020, "marks": 520, "result": "pass" } ] } )
+
+db.students.insertMany([ { "student_id" : 1, "name" : "neeraj", personal_details: {"age":18, "mobile": 876543210, "email": "neeraj@test.t"},"status": "active",
+"class_results": [{ "class_id": 7 , "year": 2020, "marks": 500, "result": "pass" }] }, { "student_id" : 2, "name" : "girish", personal_details: { "age":19, "mobile": 900000000, "email": "girish@test.t"}, "status": "active",
+"class_results": [ { "class_id": 7 , "year": 2020, "marks": 425, "result": "pass" } ] }, { "student_id" : 3, "name" : "john", personal_details: {"age":17, "mobile": 0067800000, "email": "john@john.tc"}, "status": "active",
+"class_results": [ { "class_id": 7 , "year": 2020, "marks": 520, "result": "pass" } ] }, { "student_id" : 4, "name" : "user4", personal_details: {"age": 17, "mobile": 467800000, "email": "user4@test.online"}, "status": "active",
+"class_results": [ { "class_id": 7 , "year": 2020, "marks": 120, "result": "fail" } ] }, { "student_id" : 5, "name" : "user5", personal_details:{"age": 18, "mobile": 567800000, "email": "user5@test.online"}, "status": "active",
+"class_results": [ { "class_id": 7 , "year": 2020, "marks": 450, "result": "pass" } ] }, { "student_id" : 6, "name" : "user6", personal_details:{"age": 17, "mobile": 667800000, "email": "user6@test.online"}, "status": "active",
+"class_results": [ { "class_id": 7 , "year": 2020, "marks": 380, "result": "pass" } ] }, { "student_id" : 7, "name" : "user7", personal_details:{"age": 17, "mobile": 767800000, "email": "user7@test.online"}, "status": "active",
+"class_results": [ { "class_id": 7 , "year": 2020, "marks": 415, "result": "pass" } ] }, { "student_id" : 8, "name" : "user8", personal_details:{"age": 17, "mobile": 867800000, "email": "user8@test.online"}, "status": "active",
+"class_results": [ { "class_id": 8 , "year": 2020, "marks": 200, "result": "fail" } ] }, { "student_id" : 9, "name" : "user9", personal_details:{"age": 17, "mobile": 967800000, "email": "user9@test.online"}, "status": "active",
+"class_results": [ { "class_id": 8 , "year": 2020, "marks": 500, "result": "pass" } ] }, { "student_id" : 10, "name" : "user10", personal_details:{"age": 19, "mobile": 0067800010, "email": "user10@test.online"}, "status": "active",
+"class_results": [ { "class_id": 8 , "year": 2020, "marks": 480, "result": "pass" } ] } ])
+
+db.students.find() db.students.find().pretty() db.students.findOne() db.students.find( { "student_id": 1} ) db.students.find( { "status": "active"} )
+
+db.classes.insertOne( {"class_id": 7, "title": 7, "section": "A"} )
+
+db.classes.insertMany( [ {"class_id": "7A" , "title": "dummy title 7A", "section": "A"}, {"class_id": "7B", "title": "dummy title 7B", "section": "B"}, {"class_id": "7C", "title": "dummy title 7C", "section": "C"} ] )
+
+db.students.find( {"age" : { $gt : 18} } ) ; db.students.find( {"age" : { $gte : 18} } ) ;
+
+db.students.find( {"age" : { $eq : 18} } ) ;
+
+db.students.find( {"name" : { $in : ["john", "neeraj"]} } ) ;
+
+db.students.find( { $and: [{ "name" : "neeraj"} , {"age" : { $le : 20 } ]} );
+
+db.students.find( { $or: [{ "name" : "neeraj"} , {"age" : { $le : 20 } ]} );
+
+db.students.find( {"name" : "neeraj" , "mobile" : { $exists : true } } );
+
+db.students.count( {"name" : "neeraj" , "email" : null } );
+
+Nested documents and arrays: db.students.find( "class_results": {"class_id" : 7, "year" : 2020, "marks" : 520, "result" : "pass"} )
+
+db.students.insertMany([ { "student_id" : 11, "name" : "user11", personal_details: {"age":18, "mobile": 876543210, "email": "user11@test.online"},"status": "active",
+"class_results": [{ "class_id": 7 , "year": 2020, "marks": 500, "result": "pass" }], "sports": [ "cricket", "football", "badminton"] }, { "student_id" : 12, "name" : "user12", personal_details: { "age":19, "mobile": 900000000, "email": "user12@test.online"}, "status": "active",
+"class_results": [ { "class_id": 7 , "year": 2020, "marks": 425, "result": "pass" }], "sports": [ "cricket", "volleyball", "badminton"] }, { "student_id" : 13, "name" : "user13", personal_details: {"age":17, "mobile": 0067800000, "email": "user13@test.online"}, "status": "active",
+"class_results": [{ "class_id": 7 , "year": 2020, "marks": 520, "result": "pass" }], "sports": [ "badminton"] }, { "student_id" : 14, "name" : "user14", personal_details: {"age": 17, "mobile": 467800000, "email": "user14@test.online"}, "status": "active",
+"class_results": [{ "class_id": 7 , "year": 2020, "marks": 120, "result": "fail" }], "sports": [ "cricket", "football", "badminton"] }, { "student_id" : 15, "name" : "user15", personal_details:{"age": 18, "mobile": 567800000, "email": "user15@test.online"}, "status": "active",
+"class_results": [{ "class_id": 7 , "year": 2020, "marks": 450, "result": "pass" }], "sports": [ "cricket", "badminton"] }, { "student_id" : 16, "name" : "user16", personal_details:{"age": 17, "mobile": 667800000, "email": "user16@test.online"}, "status": "active",
+"class_results": [{ "class_id": 7 , "year": 2020, "marks": 380, "result": "pass" }] } ])
+
+db.students.find( { "sports": ["cricket"]} ) db.students.find( { "sports": ["badminton"]} ) db.students.find( { "sports": ["cricket", "badminton"]} ) db.students.find( { "sports": ["cricket", "volleyball"]} ) db.students.find( { "sports": ["badminton", "volleyball"]} )
+
+db.students.find( { "sports": {"$all": ["badminton", "volleyball"]} } ) db.students.find( { "sports": {"$all": ["cricket", "volleyball"]} } ) db.students.find( { "sports": {"$all": ["cricket"]} } )
+
+db.students.find( { "sports": "cricket"} ) db.students.find( { "sports": "cricket", "sports" :"badminton"} ) db.students.find( { "$or": [{ "sports": "cricket"}, {"sports" :"badminton"}]} ) db.students.find( { "sports": {"$in" : ["cricket", "badminton"]} } )
+
+db.students.find( { "sports": {"$elemMatch": { $eq: "badminton", $eq: "cricket" } } } ) db.students.find( { "sports.1": { $eq: "badminton" } } )
+
+db.students.find( { "class_results": { "class_id" : 7, "year" : 2020, "marks" : 520, "result" : "pass" } } )
+
+db.students.find( { "class_results.marks": { $eq: 520} } )
+
+db.students.find( { "class_results.0.marks": { $eq: 520} } )
+
+db.students.find( { "class_results": { $elemMatch : {"year" : 2020, "result" : "pass" } } } )
+
+db.students.find( { "class_results": { $elemMatch : {"year" : 2020, "result" : "fail" } } } )
+
+db.students.find( { "class_results": { $elemMatch : {"year" : 2020, "result" : "pass", "marks": {$gt:300, $lte:420} } } } )
+
+db.students.find( { "class_results.marks": { $gt : 300, $lt : 400 } } )
+
+db.students.find( { "class_results.marks": 120, "class_results.result" : "fail"} )
+
+db.students.insertMany([ { "student_id" : 11, "name" : "user11", personal_details: {"age":18, "mobile": 876543210, "email": "user11@test.online"},"status": "active", "class_results": [{ "class_id": 7 , "year": 2020, "marks": 500, "result": "pass" }], "sports": [ "cricket", "football", "badminton"] }])
+
+Update operations:
+
+db.students.find( { student_id: 11 } )
+
+db.students.updateOne( {student_id: 11 }, { $set:{ status: "active" }} )
+
+db.students.count( {"personal_details.age": {$gte: 18} } ) db.students.find( {"personal_details.age": {$gte: 18} } ) db.students.updateMany( {"personal_details.age": {$gte: 18} }, { $set: {"adult": "y" }} )
+
+db.students.update( {student_id: 11 }, { status: "inactive" } ) db.students.update( {"personal_details.age": {$gte: 18} }, { $unset: {"adult": "" }} ) db.students.update( {"personal_details.age": {$gte: 18} }, { $unset: {"adult": "" }}, {multi: true} )
+
+db.students.updateOne( { student_id: 11 }, { $currentDate: { lastModified: true } } ) db.students.update( { student_id: 11 }, { $inc: { "class_results.0.marks": 20} } ) db.students.update( { student_id: 11 }, { $min: { "class_results.0.marks": 150 } } ) db.students.update( { student_id: 11 }, { $max: { "class_results.0.marks": 480 } } )
+
+db.students.update( { student_id: 11 }, { $rename: { "name": "student_name"} } ) db.students.update( { student_id: 11 }, { $set: {"class_results.0.marks": 500, "status": "inactive" }, $currentDate: { lastModified:true }} ) db.students.update( {student_id: 11 }, { $set: { status: "active" }, $setOnInsert: { mobile: 000000000} }, { upsert: true } )
+
+db.students.update( { student_id: 11 }, { $unset: { lastModified: "" } } )
+
+db.students.update( {student_id: 11 }, {$addToSet:{ "sports": "cricket"}} ) db.students.update( {student_id: 11 }, {$addToSet:{ "sports": ["tennis","football"]}} ) db.students.update( {student_id: 11 }, {$addToSet:{ "sports": {$each: ["tennis","football"]}}} )
+
+db.students.update( { student_id: 11 }, { $pop: { sports: 1 } } ) db.students.update( { student_id: 11 }, { $pop: { sports: -1 } } )
+
+db.students.update( { student_id: 11 }, { $pull: { sports: { $in: [ "tennis" ] }} } )
+
+db.students.update( { student_id: 11 }, { $push: { sports: { $each: [ "tennis", "kho-kho","kanche" ] }} } )
+
+db.students.updateOne( {student_id: 11, "sports":"cricket" }, {$set:{ "sports.$": "tennis"}} )
+
+db.students.updateOne( {student_id: 11, "sports":"cricket" }, {$set:{ "sports.$[]": "cricket"}} ) db.students.update( { student_id: 11 }, { $pull: { sports: { $in: [ "cricket" ] }} } )
+
+db.students.update( { student_id: 11 }, { $set: { lastModified: "" } } )
