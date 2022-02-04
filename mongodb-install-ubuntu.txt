@@ -1,0 +1,42 @@
+MongoDB installtion on linux ubuntu https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+
+Import the public key used by the package management system.
+	wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+
+Create a list file for MongoDB
+	echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+
+Reload local package database
+	sudo apt-get update
+	
+Install the MongoDB packages
+	sudo apt-get install -y mongodb-org
+	
+	Start MongoDB
+		sudo systemctl start mongod
+
+	Verify that MongoDB has started successfully.
+		sudo systemctl status mongod
+	
+	You can optionally ensure that MongoDB will start following a system reboot by issuing the following command:
+		sudo systemctl enable mongod
+	
+	Stop MongoDB
+		sudo systemctl stop mongod
+	
+	Restart MongoDB.
+		sudo systemctl restart mongod
+		
+	Begin using MongoDB
+		mongosh 
+		
+Uninstall MongoDB Community Edition
+	Stop MongoDB	
+		sudo service mongod stop
+	
+	Remove Packages
+		sudo apt-get purge mongodb-org*
+	
+	Remove Data Directories
+		sudo rm -r /var/log/mongodb
+		sudo rm -r /var/lib/mongodb
