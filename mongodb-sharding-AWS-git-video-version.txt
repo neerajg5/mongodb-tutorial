@@ -1,0 +1,217 @@
+Note:
+	Ubuntu free tier is used for the demonstration in this video.
+	There is no security implemented in this video. For example, MongoDB compass is able to connect to AWS EC2 instance without any password. The desired ports of AWS instances are accessible from all the IP addresses, which should not be the case in the any environment. This is done for learning and demonstration purposes only.
+	All the IPs and public host names mentioned in this document are used at the time of creation of this video. Please replace these with details of your EC2 instances.
+
+Step 1 : Launch EC2 instances (my youtube video for launching EC2 instance - https://www.youtube.com/watch?v=z2l32IztRbM )
+	An instance for config server replica setup 
+	An instance for shard server 1 replica setup
+	Another instance for shard server 2 replica setup
+	An instance for mongos process which will connect our client ( MongoDB compass to our sharded MongoDB cluster)
+	
+
+Step 2 : Install MongoDB (on all AWS EC2 Ubuntu instances) ( My youtube video for installing MongoDB on Ubuntu - https://www.youtube.com/watch?v=Ecs_xUrr5YA )
+	MongoDB installtion on linux ubuntu https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
+
+	Import the public key used by the package management system.
+		wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+
+	Create a list file for MongoDB
+		echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+
+	Reload local package database
+		sudo apt-get update
+		
+	Install the MongoDB packages
+		sudo apt-get install -y mongodb-org
+		
+		Start MongoDB
+			sudo systemctl start mongod
+
+		Verify that MongoDB has started successfully.
+			sudo systemctl status mongod		
+
+Step 3: 
+	Start MongoDB services and configurations ( My other youtube videos on MongoDB sharding - https://www.youtube.com/watch?v=aBaD0qHK1as , https://www.youtube.com/watch?v=Jr0PiGIVJ8k , https://www.youtube.com/watch?v=YU7qjJJpG4M , https://www.youtube.com/watch?v=zGF_7kQBLq4 )
+	
+	Sharding setup (AWS EC2 instances):
+	
+	Create required directories for data and configurations:
+		
+	Config server:
+	
+		Go to home dir
+			cd ~
+		
+		Run the following command on config server. To create the data direcotries. Ideally all these should be on separate EC2 isntances in different regions.
+			mkdir -p shard-demo/configsrv shard-demo/configsrv1 shard-demo/configsrv2
+			
+		check the mongodb process with the following command on ubuntu or linux
+			ps -aef  | grep "mongo"
+		
+		
+		Start mongodb replica set for config server. In case of any questions on config servers and its purpose, please watch my detailed youtube videos mentioned here.
+		
+			nohup mongod --configsvr  --port 28041 --bind_ip localhost,ec2-54-201-11-172.us-west-2.compute.amazonaws.com --replSet config_repl --dbpath shard-demo/configsrv &
+		
+			nohup mongod --configsvr  --port 28042 --bind_ip localhost,ec2-54-201-11-172.us-west-2.compute.amazonaws.com --replSet config_repl --dbpath shard-demo/configsrv1 &
+		 
+			nohup mongod --configsvr  --port 28043 --bind_ip localhost,ec2-54-201-11-172.us-west-2.compute.amazonaws.com --replSet config_repl --dbpath shard-demo/configsrv2 &
+		
+		Connect to one of the replica set node (note down the IP address):
+			
+			mongosh --host 54.201.11.172  --port 28041
+		
+		Define the replica set config:
+		
+			rsconf = {
+					  _id: "config_repl",
+					  members: [
+						{
+						 _id: 0,
+						 host: "54.201.11.172:28041"
+						},
+						{
+						 _id: 1,
+						 host: "54.201.11.172:28042"
+						},
+						{
+						 _id: 2,
+						 host: "54.201.11.172:28043"
+						}
+					   ]
+					}
+		
+		initiate the replica set using the config defined above:			
+			rs.initiate(rsconf)
+		
+		check the replica set status:
+			rs.status()
+					
+			
+		Shard server 1:
+		
+		Run the following command on Shard server 1. To create the data direcotries. Ideally all these should be on separate EC2 isntances in different regions.
+			mkdir -p shard-demo/shardrep1 shard-demo/shardrep2 shard-demo/shardrep3 
+			
+		Start mongodb replica set for shard one. In case of any questions on shard servers and its purpose, please watch my detailed youtube videos mentioned here.
+		
+			nohup mongod --shardsvr --port 28081 --bind_ip localhost,ec2-54-202-190-224.us-west-2.compute.amazonaws.com --replSet shard_repl --dbpath shard-demo/shardrep1 &
+		
+			nohup mongod --shardsvr --port 28082 --bind_ip localhost,ec2-54-202-190-224.us-west-2.compute.amazonaws.com --replSet shard_repl --dbpath shard-demo/shardrep2 &
+			
+			nohup mongod --shardsvr --port 28083 --bind_ip localhost,ec2-54-202-190-224.us-west-2.compute.amazonaws.com --replSet shard_repl --dbpath shard-demo/shardrep3 &
+			
+		Connect to one of the replica set node (note down the IP address):
+			mongosh --host 54.202.190.224  --port 28081
+		
+		Define the replica set config of shard one:
+		
+			rsconf = {
+				  _id: "shard_repl",
+				  members: [
+					{
+					 _id: 0,
+					 host: "54.202.190.224:28081"
+					},
+					{
+					 _id: 1,
+					 host: "54.202.190.224:28082"
+					},
+					{
+					 _id: 2,
+					 host: "54.202.190.224:28083"
+					}
+				   ]
+				}
+		
+		initiate the replica set using the config defined above:	
+			rs.initiate(rsconf)
+		
+		check the replica set status:
+			rs.status()
+			
+			
+		Shard server 2:		
+						
+		Run the following command on Shard server 1. To create the data direcotries. Ideally all these should be on separate EC2 isntances in different regions.
+			mkdir -p shard-demo/shard2rep1 shard-demo/shard2rep2 shard-demo/shard2rep3 
+
+		Start mongodb replica set for shard two. In case of any questions on shard servers and its purpose, please watch my detailed youtube videos mentioned here.	
+			nohup mongod --shardsvr --port 29081 --bind_ip localhost,ec2-18-236-214-205.us-west-2.compute.amazonaws.com --replSet shard2_repl --dbpath shard-demo/shard2rep1 &
+		
+			nohup mongod --shardsvr --port 29082 --bind_ip localhost,ec2-18-236-214-205.us-west-2.compute.amazonaws.com --replSet shard2_repl --dbpath shard-demo/shard2rep2 &
+			
+			nohup mongod --shardsvr --port 29083 --bind_ip localhost,ec2-18-236-214-205.us-west-2.compute.amazonaws.com --replSet shard2_repl --dbpath shard-demo/shard2rep3 &
+		
+		Connect to one of the replica set node (note down the IP address):
+			mongosh --host 18.236.214.205  --port 29081
+		
+		Define the replica set config of shard one:
+			rsconf = {
+				  _id: "shard2_repl",
+				  members: [
+					{
+					 _id: 0,
+					 host: "18.236.214.205:29081"
+					},
+					{
+					 _id: 1,
+					 host: "18.236.214.205:29082"
+					},
+					{
+					 _id: 2,
+					 host: "18.236.214.205:29083"
+					}
+				   ]
+				}
+		
+			rs.initiate(rsconf)
+			rs.status()
+			
+		setup MongoS on another AWS EC2 instance. Refer the following commands.	MongoS can be colocated at the application instance. For this demo purpose, a separate EC2 instance is used.	
+		
+		The following command is connecting mongos to config server installed on AWS EC2 instance.
+			nohup mongos --configdb config_repl/ec2-54-201-11-172.us-west-2.compute.amazonaws.com:28041,ec2-54-201-11-172.us-west-2.compute.amazonaws.com:28042,ec2-54-201-11-172.us-west-2.compute.amazonaws.com:28043 --bind_ip localhost,ec2-34-219-103-96.us-west-2.compute.amazonaws.com &
+
+		Connect to the Sharded Cluster (through MongoS):
+			mongosh --host localhost --port 27017
+			OR 
+			mongosh --host ec2-34-219-103-96.us-west-2.compute.amazonaws.com --port 27017
+			
+		
+		update chunk size - default chunk size is 64 MB, change it to some other value:
+			use config
+			
+			db.settings.updateOne(
+			   { _id: "chunksize" },
+			   { $set: { _id: "chunksize", value: 2 } },
+			   { upsert: true }
+			)
+			
+		Add shard ( all the following commands are to be executed from the mongos instance)
+		
+			sh.addShard( "shard_repl/54.202.190.224:28081,54.202.190.224:28082,54.202.190.224:28083")
+			sh.addShard( "shard2_repl/18.236.214.205:29081,18.236.214.205:29082,18.236.214.205:29083")
+			sh.status()
+				
+			sh.enableSharding("demo")
+							
+			Test with collection 1:
+				db.zips.createIndex({ "pop" : "hashed" })
+				sh.shardCollection("demo.zips", { pop : "hashed" } )
+				sh.status()
+				
+				sh.balancerCollectionStatus( "demo.zips" )		version 4.4	
+				db.zips.getShardDistribution()
+			
+			Test with collection 2:
+				db.test.createIndex({ "iso_code" : 1 })
+				sh.shardCollection("demo.test", { iso_code : 1} )
+				sh.status()
+
+				sh.balancerCollectionStatus( "demo.test" )	
+				db.test.getShardDistribution()			
+	
+		Command to connect from desktop/laptop mongodb compass to AWS EC2 instance running MongoS
+			mongodb://ec2-34-219-103-96.us-west-2.compute.amazonaws.com:27017/admin
